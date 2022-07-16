@@ -2,7 +2,7 @@ import { useState } from 'react';
 
 import { useDispatch } from 'react-redux';
 
-import { filterList } from 'redux/contacts/actions';
+import { filterList } from 'redux/filter';
 
 import s from './Filter.module.css';
 

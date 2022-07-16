@@ -1,27 +1,41 @@
 import s from './App.module.css';
 
+import {
+  useFetchContactsQuery,
+  useDeleteContactMutation,
+  useAddContactMutation,
+} from 'redux/contacts';
+
 import ContactForm from './ContactForm/ContactForm';
 import Filter from './Filter/Filter';
+import Loader from 'components/Loader/Loader';
 import ContactList from './ContactList/ContactList';
-// import useLocalStorage from './hooks/useLocalStorage';
 
 export const App = () => {
-  // const [contacts, setContacts] = useLocalStorage('contacts', []);
+  const { data, error, isFetching, isError } = useFetchContactsQuery();
 
-  // const deleteContact = id => {
-  //   const remainigContacts = contacts.filter(contact => contact.id !== id);
-  //   setContacts(remainigContacts);
-  // };
+  const showContactsData = data && !isError;
+
+  const [deleteContact] = useDeleteContactMutation();
+  const [addContact, { isSuccess: isAdded }] = useAddContactMutation();
 
   return (
     <div className={s.app}>
       <h1 className={s.mainTitle}>Phonebook</h1>
-      <ContactForm />
+      <ContactForm contacts={data} onAdd={addContact} isAdded={isAdded} />
 
       <h2 className={s.title}>Contacts</h2>
       <Filter />
-      {/* <ContactList delContact={deleteContact}/> */}
-      <ContactList />
+
+      {isFetching && <Loader />}
+      {isError && <b>{error.status}</b>}
+      {showContactsData && (
+        <ContactList
+          contacts={data}
+          onDelete={deleteContact}
+          isFetching={isFetching}
+        />
+      )}
     </div>
   );
 };

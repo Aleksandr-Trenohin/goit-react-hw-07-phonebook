@@ -1,22 +1,20 @@
-import { useState } from 'react';
+import { PropTypes } from 'prop-types';
 
-import { useSelector, useDispatch } from 'react-redux';
+import { useState } from 'react';
 
 import s from './ContactForm.module.css';
 
 import { Notify } from 'notiflix';
-import { nanoid } from 'nanoid';
 
-import { addContact } from 'redux/contacts/actions';
-import { getContactsList } from 'redux/contacts/selectors';
-
-const ContactForm = () => {
+const ContactForm = ({ contacts, onAdd, isAdded }) => {
   const [name, setName] = useState('');
   const [number, setNumber] = useState('');
 
-  const dispatch = useDispatch();
-
-  const contacts = useSelector(getContactsList);
+  // const { data, error, isFetching, isError } = useGetContactByNameQuery(name, {
+  //   skip: name === '',
+  //   refetchOnReconnect: true,
+  // });
+  // console.log(isAdded);
 
   const onAddNewContact = evt => {
     evt.preventDefault();
@@ -30,13 +28,10 @@ const ContactForm = () => {
       setNumber('');
       return Notify.warning(`${name} is already in contacts list!`);
     } else {
-      dispatch(
-        addContact({
-          id: nanoid(),
-          name,
-          number,
-        })
-      );
+      onAdd(name, number);
+      if (isAdded) {
+        Notify.success(`${name}'s contact added successfully`);
+      }
     }
 
     setName('');
@@ -44,11 +39,11 @@ const ContactForm = () => {
   };
 
   return (
+    // ? autoComplete="off"
     <form onSubmit={onAddNewContact} className={s.form}>
       <label htmlFor="username" className={s.label}>
         Name
       </label>
-
       <input
         className={s.input}
         type="text"
@@ -80,6 +75,16 @@ const ContactForm = () => {
       </button>
     </form>
   );
+};
+
+ContactForm.propTypes = {
+  contacts: PropTypes.arrayOf(
+    PropTypes.shape({
+      name: PropTypes.string.isRequired,
+    })
+  ),
+  onAdd: PropTypes.func.isRequired,
+  isAdded: PropTypes.bool.isRequired,
 };
 
 export default ContactForm;
